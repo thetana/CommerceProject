@@ -7,6 +7,7 @@ import java.util.TreeMap;
 
 public class DataManager {
     private static final Map<String, Category> categorys = new TreeMap<>();
+    public static final String CATEGORYS = "categorys";
 
     static {
         init();
@@ -19,11 +20,18 @@ public class DataManager {
         products = new TreeMap<>();
         putCategory("2", "의류", products);
         products = new TreeMap<>();
-        putCategory("3", "의류", products);
+        putCategory("3", "식품", products);
     }
 
-    public static Map<String, Category> getCategorys() {
-        return Map.copyOf(categorys);
+    public static Map read(String name) {
+        switch (name) {
+            case CATEGORYS -> {
+                return Map.copyOf(categorys);
+            }
+            default -> {
+                return null;
+            }
+        }
     }
 
     private static void putCategory(String key, String name, Map<String, Product> products) {

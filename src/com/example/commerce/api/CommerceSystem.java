@@ -9,7 +9,7 @@ import java.util.Map;
 public class CommerceSystem {
 
     public static Map<String, Category> getCategorys() {
-        return DataManager.getCategorys();
+        return DataManager.read(DataManager.CATEGORYS);
     }
 
 
