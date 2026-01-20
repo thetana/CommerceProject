@@ -3,6 +3,8 @@ package com.example.commerce.ui;
 import java.util.Map;
 import java.util.TreeMap;
 
+import static java.lang.System.exit;
+
 public class MainPage<T extends Page> extends Page {
     // Page 클래스의 이점을 만들어주는 라우터
     // 컬렉션에 내가 원하는 메뉴 페이지를 넣어주면 유저에게 보여주는 출력 부터 메뉴 선택까지 한줄 끝낼 수 있다
@@ -30,7 +32,7 @@ public class MainPage<T extends Page> extends Page {
             String in = sc.next();
             if (in.equals("0") || in.equals("exit")) {
                 run = false;
-                System.exit(0);
+                exit(0);
             } else {
                 try {
                     // if문 없이 맵을 이용해 유저가 선택한 메뉴로 바로 이동 한다

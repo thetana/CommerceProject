@@ -11,12 +11,13 @@ public class PageManager<T extends Page> {
 
     private PageManager() {
         // 예외처리 안한다 여기서 실패하면 죽는게 낫다
+        oagePool.put((Class<T>) SignPage.class, new SignPage());
         oagePool.put((Class<T>) MainPage.class, new MainPage());
         oagePool.put((Class<T>) CommercePage.class, new CommercePage());
         oagePool.put((Class<T>) CartPage.class, new CartPage());
         oagePool.put((Class<T>) OrderPage.class, new OrderPage());
         oagePool.put((Class<T>) AdminPage.class, new AdminPage());
-        oagePool.forEach(( k, v) -> System.out.println("페이지 풀 등록 완료 : " + v.name));
+//        oagePool.forEach(( k, v) -> System.out.println("페이지 풀 등록 완료 : " + v.name));
     }
 
     public static PageManager getInstance() {
