@@ -49,7 +49,7 @@ public class SignPage extends Page {
         System.out.println("[ 회원가입 ]");
         String email = inputEmail(false);
         char[] pw = inputPw(false, email);
-        if (CommerceSystem.addCustomer(name, email, pw)) {
+        if (CommerceSystem.addCustomer(email, email, pw)) {
             System.out.println("회원가입에 성공 했습니다.");
         }
     }

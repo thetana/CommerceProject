@@ -1,10 +1,10 @@
-package com.example.commerce.data;
+package com.example.commerce.data.model;
 
 import java.util.UUID;
 
-public record Product(UUID Uuid, String name, int price, String note, int count) {
+public record Product(String id, String name, int price, String note, int count) implements HasId {
     public Product(String name, int price, String note, int count) {
-        this(UUID.randomUUID(), name, price, note, count);
+        this(UUID.randomUUID().toString(), name, price, note, count);
     }
 
 

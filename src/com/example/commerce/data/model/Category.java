@@ -1,7 +1,6 @@
-package com.example.commerce.data;
+package com.example.commerce.data.model;
 
 import java.util.List;
-import java.util.Map;
 
 public record Category(String name, List<Product> products) {
 

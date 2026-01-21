@@ -1,5 +1,6 @@
 package com.example.commerce.ui;
 
+import javax.swing.text.html.HTMLDocument;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -28,11 +29,17 @@ public class MainPage<T extends Page> extends Page {
             System.out.println(this.name);
             // 이동 할 수 있는 메뉴들은 동적으로 생성하여 보여준다
             r.keySet().stream().filter(k -> pm.isPageVisible(r.get(k))).forEach((k) -> System.out.println(k + ". " + pm.getName(r.get(k))));
+            Integer signOutinx = r.size() + 1;
+            System.out.println(signOutinx + ". 로그아웃");
             System.out.println("0. 종료");
             String in = sc.next();
             if (in.equals("0") || in.equals("exit")) {
                 run = false;
                 exit(0);
+            } else if (signOutinx.toString().equals(in)) {
+                // 로그아웃을
+                run = false;
+                break;
             } else {
                 try {
                     // if문 없이 맵을 이용해 유저가 선택한 메뉴로 바로 이동 한다

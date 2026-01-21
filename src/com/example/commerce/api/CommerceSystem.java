@@ -1,8 +1,9 @@
 package com.example.commerce.api;
 
-import com.example.commerce.data.Category;
-import com.example.commerce.data.Customer;
 import com.example.commerce.data.DataManager;
+import com.example.commerce.data.model.Category;
+import com.example.commerce.data.model.Customer;
+import com.example.commerce.data.model.Product;
 
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
@@ -10,6 +11,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Base64;
+import java.util.List;
 import java.util.Map;
 
 public class CommerceSystem {
@@ -20,10 +22,10 @@ public class CommerceSystem {
         return DataManager.read(DataManager.CATEGORYS);
     }
 
-    public static boolean addCustomer(String name, String email, char[] pw) {
+    public static boolean addCustomer(String email, String name, char[] pw) {
         byte[] salt = generateSalt();
-        Customer c = new Customer(name, email, hash(pw, salt), salt);
-        return DataManager.write(DataManager.CUSTOMERS, c);
+        Customer data = new Customer(email, name, hash(pw, salt), salt);
+        return DataManager.write(DataManager.CUSTOMERS, data);
     }
 
     public static boolean setSignedEmail(String email, char[] pw) {
@@ -43,6 +45,27 @@ public class CommerceSystem {
         }
         return isOk;
     }
+
+    public static String getSignedEmail() {
+        return signedEmail;
+    }
+
+    public static boolean addCart(String categoryId, String productid, int cnt) {
+        Product product = getProducts(categoryId).stream().filter(p -> p.id().equals(productid)).findFirst().orElseThrow();
+        if(product.count() < cnt){
+            return false;
+        }
+        Product data = new Product(product.id(), product.name(), product.price(), product.note(), cnt);
+        return DataManager.write(DataManager.CARTS, data);
+    }
+
+    public static List<Product> getProducts(String categoryId) {
+        return DataManager.readList(DataManager.PRODUCTS, categoryId);
+    }
+    public static int getProductCount(String categoryId, String productid) {
+        return getProducts(categoryId).stream().filter(p -> p.id().equals(productid)).findFirst().orElseThrow().count();
+    }
+
 
     private static String hash(char[] password, byte[] salt) {
         try {

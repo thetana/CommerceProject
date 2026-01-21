@@ -2,7 +2,6 @@ package com.example.commerce.data;
 
 import com.example.commerce.api.CommerceSystem;
 import com.example.commerce.data.model.*;
-import com.example.commerce.data.strategy.Write;
 
 import java.util.*;
 
@@ -28,7 +27,6 @@ import java.util.*;
  */
 
 
-
 /**
  * 프로젝트에 데이터 저장을 총괄 한다
  * ORM DB 클라이언트 쯤으로 보면 좋을 것 같은데 외부에서는 구체적인 저장이 어떤 저장소를 사용하는지 (자바 자료구조인지, SQL인지, 파일베이스인지 등등)
@@ -44,6 +42,7 @@ public class DataManager {
     private static final Map<String, ArrayList<Order>> orders = new TreeMap<>(); // 유저 email을 키로하는 유저별 장바구니
     public static final String CATEGORYS = "categorys";
     public static final String CUSTOMERS = "customers";
+    public static final String PRODUCTS = "products";
     public static final String CARTS = "carts";
 
     static {
@@ -68,9 +67,15 @@ public class DataManager {
         putCategory("2", "의류", products);
         products = new ArrayList<>();
         putCategory("3", "식품", products);
+
+        CommerceSystem.addCustomer("123", "123", new char[]{'1', '2', '3'});
     }
 
     public static Map read(String what) {
+        return read(what, null);
+    }
+
+    public static Map read(String what, String id) {
         switch (what) {
             case CATEGORYS -> {
                 return Map.copyOf(categorys);
@@ -84,8 +89,19 @@ public class DataManager {
         }
     }
 
+    public static List readList(String what, String id) {
+        switch (what) {
+            case PRODUCTS -> {
+                return List.copyOf(categorys.get(id).products());
+            }
+            default -> {
+                return null;
+            }
+        }
+    }
 
-    public static boolean write(String what, Object data) {
+
+    public static boolean write(String what, HasId data) {
         boolean isOk = false;
         switch (what) {
             case CATEGORYS -> {
@@ -94,7 +110,8 @@ public class DataManager {
             case CUSTOMERS -> {
                 if (data instanceof Customer) {
                     Customer customer = (Customer) data;
-                    customers.put(customer.id(), customer);
+                    putCustomer(customer);
+//                    customers.put(customer.id(), customer);
                     isOk = true;
                 } else {
                     isOk = false;
@@ -104,7 +121,6 @@ public class DataManager {
                 if (data instanceof Product) {
                     Product product = (Product) data;
                     carts.get(CommerceSystem.getSignedEmail()).add(product);
-                    customers.put(customer.email(), customer);
                     isOk = true;
                 } else {
                     isOk = false;
@@ -120,5 +136,11 @@ public class DataManager {
 
     private static void putCategory(String key, String name, List<Product> products) {
         categorys.put(key, new Category(name, products));
+    }
+
+    private static void putCustomer(Customer customer) {
+        customers.put(customer.id(), customer);
+        carts.put(customer.id(), new ArrayList<Product>());
+        orders.put(customer.id(), new ArrayList<Order>());
     }
 }

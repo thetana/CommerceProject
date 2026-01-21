@@ -1,15 +1,9 @@
 package com.example.commerce.ui;
 
 import com.example.commerce.api.CommerceSystem;
-import com.example.commerce.data.Category;
-import com.example.commerce.data.Product;
+import com.example.commerce.data.model.Category;
+import com.example.commerce.data.model.Product;
 
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.PBEKeySpec;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.security.spec.InvalidKeySpecException;
-import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -37,7 +31,7 @@ class CommercePage extends Page {
             } else {
                 try {
                     // if문 없이 맵을 이용해 유저가 선택한 메뉴로 바로 이동 한다
-                    selectCategory(map.get(in).products());
+                    selectCategory(in, map.get(in).products());
                     break;
                 } catch (NullPointerException e) {
                     System.out.println("입력하신 메뉴를 찾지 못했습니다. 다시 입력해 주세요.");
@@ -46,31 +40,54 @@ class CommercePage extends Page {
         }
     }
 
-    public void selectCategory(List<Product> list) {
+    private void selectCategory(String categoryId, List<Product> list) {
         this.pm = PageManager.getInstance();
         boolean run = true;
         while (run) {
             // 선택 할 수 있게 보여준다
-            list.forEach((k) -> System.out.println(k));
+            for (int i = 0; i < list.size(); i++) {
+                System.out.println((i + 1) + ". " + list.get(i));
+            }
             System.out.println("0. 뒤로가기");
             String in = sc.next();
             if (in.equals("0") || in.equals("exit")) {
                 run = false;
                 break;
             } else {
-                try {
-                    selectProduct(in, list.get(Integer.parseInt(in)));
-                    break;
-                } catch (NullPointerException e) {
-                    System.out.println("입력하신 메뉴를 찾지 못했습니다. 다시 입력해 주세요.");
-                }
+                selectProduct(categoryId, list.get(Integer.parseInt(in) - 1));
+                break;
+//                try {
+//                } catch (NullPointerException e) {
+//                    System.out.println("입력하신 메뉴를 찾지 못했습니다. 다시 입력해 주세요.");
+//                }
             }
         }
     }
 
-    public void selectProduct(String key, Product product) {
+    private void selectProduct(String categoryId, Product product) {
         System.out.println(product);
+        int count = inputCount(categoryId, product.id());
+        if (count > 0) {
+            CommerceSystem.addCart(categoryId, product.id(), count);
+        }
     }
 
-
+    private int inputCount(String categoryId, String productid) {
+        boolean run = true;
+        int cnt = -1;
+        while (run) {
+            System.out.println("담을 수량을 입력해 주세요. (0 입력 : 뒤로가기)");
+            System.out.print("수량 : ");
+            cnt = sc.nextInt();
+            if (cnt == 0) {
+                run = false;
+                break;
+            } else if (cnt <= CommerceSystem.getProductCount(categoryId, productid)) {
+                break;
+            } else {
+                System.out.println("재고가 부족합니다");
+            }
+        }
+        return cnt;
+    }
 }
