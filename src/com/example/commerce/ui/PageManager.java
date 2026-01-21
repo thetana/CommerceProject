@@ -1,5 +1,7 @@
 package com.example.commerce.ui;
 
+import com.example.commerce.api.CommerceSystem;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,13 +25,30 @@ public class PageManager<T extends Page> {
     public static PageManager getInstance() {
         return INSTANCE;
     }
-    public void startPage(Class<T> p){
+
+    public void startPage(Class<T> p) {
         oagePool.get(p).start();
     }
-    public String getName(Class<T> p){
+
+    public String getName(Class<T> p) {
         return oagePool.get(p).name;
     }
-    public boolean isPageVisible(Class<T> p){
+
+    public boolean isPageVisible(Class<T> p) {
         return oagePool.get(p).isVisible;
+    }
+
+    private void setPageVisible(Class<T> p, boolean isVisible) {
+        oagePool.get(p).isVisible = isVisible;
+    }
+
+    public void notifyCartCountChanged() {
+        if (CommerceSystem.getCartCount() > 0) {
+            setPageVisible((Class<T>) CartPage.class, true);
+            setPageVisible((Class<T>) OrderPage.class, true);
+        } else {
+            setPageVisible((Class<T>) CartPage.class, false);
+            setPageVisible((Class<T>) OrderPage.class, false);
+        }
     }
 }

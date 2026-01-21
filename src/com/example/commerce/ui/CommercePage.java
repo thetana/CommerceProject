@@ -56,10 +56,6 @@ class CommercePage extends Page {
             } else {
                 selectProduct(categoryId, list.get(Integer.parseInt(in) - 1));
                 break;
-//                try {
-//                } catch (NullPointerException e) {
-//                    System.out.println("입력하신 메뉴를 찾지 못했습니다. 다시 입력해 주세요.");
-//                }
             }
         }
     }
@@ -82,7 +78,7 @@ class CommercePage extends Page {
             if (cnt == 0) {
                 run = false;
                 break;
-            } else if (cnt <= CommerceSystem.getProductCount(categoryId, productid)) {
+            } else if (CommerceSystem.checkProductCount(categoryId, productid, cnt)) {
                 break;
             } else {
                 System.out.println("재고가 부족합니다");

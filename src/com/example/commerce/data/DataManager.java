@@ -94,6 +94,9 @@ public class DataManager {
             case PRODUCTS -> {
                 return List.copyOf(categorys.get(id).products());
             }
+            case CARTS -> {
+                return List.copyOf(carts.get(id));
+            }
             default -> {
                 return null;
             }
@@ -119,7 +122,9 @@ public class DataManager {
             }
             case CARTS -> {
                 if (data instanceof Product) {
+                    List<Product> cart = carts.get(CommerceSystem.getSignedEmail());
                     Product product = (Product) data;
+                    cart.removeIf(p -> p.id().equals(product.id()));
                     carts.get(CommerceSystem.getSignedEmail()).add(product);
                     isOk = true;
                 } else {

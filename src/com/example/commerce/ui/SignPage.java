@@ -41,7 +41,8 @@ public class SignPage extends Page {
         char[] pw = inputPw(true, email);
         if (CommerceSystem.setSignedEmail(email, pw)) {
             System.out.println("로그인에 성공 했습니다.");
-            PageManager.getInstance().startPage(MainPage.class);
+            pm.notifyCartCountChanged();
+            pm.startPage(MainPage.class);
         }
     }
 
