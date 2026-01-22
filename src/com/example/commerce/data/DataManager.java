@@ -58,10 +58,10 @@ public class DataManager {
         // 데이터 초기화
         List<Product> products;
         products = new ArrayList<>();
-        products.add(new Product("Galaxy S25", 1200000, "최신 안드로이드 스마트폰", 25));
-        products.add(new Product("iPhone 15", 1350000, "Apple의 최신 스마트폰", 30));
-        products.add(new Product("MacBook Pro", 2400000, "M3 칩셋이 탑재된 노트북", 15));
-        products.add(new Product("AirPods Pro", 350000, "노이즈 캔슬링 무선 이어폰", 50));
+        products.add(new Product("1", "Galaxy S25", 1200000, "최신 안드로이드 스마트폰", 25));
+        products.add(new Product("1", "iPhone 15", 1350000, "Apple의 최신 스마트폰", 30));
+        products.add(new Product("1", "MacBook Pro", 2400000, "M3 칩셋이 탑재된 노트북", 15));
+        products.add(new Product("1", "AirPods Pro", 350000, "노이즈 캔슬링 무선 이어폰", 50));
         putCategory("1", "전자제품", products);
         products = new ArrayList<>();
         putCategory("2", "의류", products);
@@ -139,13 +139,34 @@ public class DataManager {
         return isOk;
     }
 
+    public static boolean remove(String what, String id) {
+        boolean isOk = false;
+        switch (what) {
+            case CARTS -> {
+                carts.get(CommerceSystem.getSignedEmail()).clear();
+                isOk = true;
+            }
+            default -> {
+                isOk = false;
+            }
+        }
+
+        return isOk;
+    }
+
+    public static boolean remove(String what) {
+        return remove(what, null);
+    }
+
     private static void putCategory(String key, String name, List<Product> products) {
         categorys.put(key, new Category(name, products));
     }
 
     private static void putCustomer(Customer customer) {
+        if (customers.get(customer.id()) == null) {
+            carts.put(customer.id(), new ArrayList<Product>());
+            orders.put(customer.id(), new ArrayList<Order>());
+        }
         customers.put(customer.id(), customer);
-        carts.put(customer.id(), new ArrayList<Product>());
-        orders.put(customer.id(), new ArrayList<Order>());
     }
 }

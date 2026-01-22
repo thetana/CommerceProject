@@ -29,8 +29,12 @@ public class CommerceSystem {
         return DataManager.readList(DataManager.PRODUCTS, categoryId);
     }
 
+    public static Product getProduct(String categoryId, String productid) {
+        return getProducts(categoryId).stream().filter(p -> p.id().equals(productid)).findFirst().orElseThrow();
+    }
+
     public static int getProductCount(String categoryId, String productid) {
-        return getProducts(categoryId).stream().filter(p -> p.id().equals(productid)).findFirst().orElseThrow().count();
+        return getProducts(categoryId).stream().filter(p -> p.id().equals(productid)).mapToInt(Product::count).sum();
     }
     //endregion
 
@@ -40,7 +44,7 @@ public class CommerceSystem {
         Product product = getProducts(categoryId).stream().filter(p -> p.id().equals(productid)).findFirst().orElseThrow();
         if (checkProductCount(categoryId, productid, cnt)) {
             int cartCnt = getProductCountInCart(productid);
-            Product data = new Product(product.id(), product.name(), product.price(), product.note(), cnt + cartCnt);
+            Product data = new Product(product.id(), product.categoryId(), product.name(), product.price(), product.note(), cnt + cartCnt);
             isOk = DataManager.write(DataManager.CARTS, data);
             if (isOk) {
                 pm.notifyCartCountChanged();
@@ -49,20 +53,24 @@ public class CommerceSystem {
         return isOk;
     }
 
-    public static List<Product> getCarts() {
+    public static List<Product> getCart() {
         return DataManager.readList(DataManager.CARTS, signedEmail);
     }
 
     public static int getCartCount() {
-        return getCarts().size();
+        return getCart().size();
+    }
+
+    public static int getCartPrice() {
+        return getCart().stream().mapToInt(value -> value.price() * value.count()).sum();
     }
 
     public static boolean isSetProduct(String productid) {
-        return getCarts().stream().anyMatch(p -> p.id().equals(productid));
+        return getCart().stream().anyMatch(p -> p.id().equals(productid));
     }
 
     public static int getProductCountInCart(String productid) {
-        return getCarts().stream().filter(p -> p.id().equals(productid)).mapToInt(Product::count).sum();
+        return getCart().stream().filter(p -> p.id().equals(productid)).mapToInt(Product::count).sum();
     }
 
     public static boolean checkProductCount(String categoryId, String productid, int cnt) {
@@ -70,6 +78,40 @@ public class CommerceSystem {
         int stock = getProducts(categoryId).stream().filter(p -> p.id().equals(productid)).mapToInt(Product::count).sum();
         int cart = getProductCountInCart(productid);
         isOk = stock >= (cnt + cart);
+        return isOk;
+    }
+
+    public static boolean removeCartAll() {
+        boolean isOk = false;
+        isOk = DataManager.remove(DataManager.CARTS);
+        return isOk;
+    }
+
+    public static boolean setRank() {
+        boolean isOk = false;
+        Map<String, Customer> customers = DataManager.read(DataManager.CUSTOMERS);
+        Customer customer = customers.get(signedEmail);
+
+        int total = customer.totalAmount() + getCartPrice();
+        String rank = "BRONZE";
+        if (total < 500000) {
+            rank = "BRONZE";
+        } else if (total >= 500000 && total < 1000000) {
+            rank = "SILVER";
+        } else if (total >= 1000000 && total < 2000000) {
+            rank = "GOLD";
+        } else if (total >= 2000000) {
+            rank = "PLATINUM";
+        } else {
+            rank = "BRONZE";
+        }
+        Customer updated = new Customer(customer.id(), customer.name(), customer.pw(), customer.salt(), rank, total);
+
+        // 트렌잭션은 없지만 그래도 할 수 있는 만큼 데이터 안꼬이게 처리 하면서 하자
+        if(DataManager.write(DataManager.CUSTOMERS, updated)){
+            isOk = removeCartAll();
+        }
+
         return isOk;
     }
     //endregion
