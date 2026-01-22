@@ -123,15 +123,25 @@ public class CommerceSystem {
     public static boolean removeCartAll() {
         boolean isOk = false;
         isOk = DataManager.remove(DataManager.CARTS);
+        pm.notifyCartCountChanged();
+        return isOk;
+    }
+
+    public static boolean removeCart(String name) {
+        boolean isOk = false;
+        try {
+            isOk = DataManager.remove(DataManager.CARTS, getCart().stream().filter(p -> p.name().equals(name)).findFirst().orElseThrow().id());
+            pm.notifyCartCountChanged();
+        } catch (NoSuchElementException e) {
+        }
         return isOk;
     }
 
     public static boolean setRank() {
         boolean isOk = false;
-        Map<String, Customer> customers = DataManager.read(DataManager.CUSTOMERS);
-        Customer customer = customers.get(signedEmail);
+        Customer customer = getCustomer();
 
-        int total = customer.totalAmount() + getCartPrice();
+        int total = (int) (customer.totalAmount() + (getCartPrice() - (getCartPrice() * customer.rank().getRate())));
         Rank rank = Rank.BRONZE;
         if (total >= Rank.PLATINUM.getAmt()) {
             rank = Rank.PLATINUM;
@@ -163,10 +173,9 @@ public class CommerceSystem {
     }
 
     public static boolean setSignedEmail(String email, char[] pw) {
-        Map<String, Customer> customers = DataManager.read(DataManager.CUSTOMERS);
         boolean isOk = false;
         try {
-            Customer customer = customers.get(email);
+            Customer customer = getCustomer(email);
             if (customer.pw().equals(hash(pw, customer.salt()))) {
                 signedEmail = email;
                 isOk = true;
@@ -182,6 +191,15 @@ public class CommerceSystem {
 
     public static String getSignedEmail() {
         return signedEmail;
+    }
+
+    public static Customer getCustomer(String id) {
+        Map<String, Customer> customers = DataManager.read(DataManager.CUSTOMERS);
+        return customers.get(id);
+    }
+
+    public static Customer getCustomer() {
+        return getCustomer(getSignedEmail());
     }
     //endregion
 

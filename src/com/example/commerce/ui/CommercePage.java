@@ -31,7 +31,7 @@ class CommercePage extends Page {
             } else {
                 try {
                     // if문 없이 맵을 이용해 유저가 선택한 메뉴로 바로 이동 한다
-                    selectCategory(in, map.get(in).products());
+                    selectFilter(map.get(in));
                     break;
                 } catch (NullPointerException e) {
                     System.out.println("입력하신 메뉴를 찾지 못했습니다. 다시 입력해 주세요.");
@@ -40,10 +40,40 @@ class CommercePage extends Page {
         }
     }
 
-    private void selectCategory(String categoryId, List<Product> list) {
-        this.pm = PageManager.getInstance();
+    private void selectFilter(Category category) {
+
+
         boolean run = true;
         while (run) {
+            System.out.println("[ " + category + " 카테고리 ]");
+            System.out.println("1. 전체 상품 보기");
+            System.out.println("2. 가격대별 필터링 (100만원 이하)");
+            System.out.println("3. 가격대별 필터링 (100만원 초과)");
+            System.out.println("0. 뒤로가기");
+            String in = sc.next();
+
+            switch (in) {
+                case "0", "exit", "q" -> {
+                    run = false;
+                    break;
+                }
+                case "1" -> {
+                    selectCategory(category.id(), category.products(), "[ 전체 상품 목록 ]");
+                }
+                case "2" -> {
+                    selectCategory(category.id(), category.products().stream().filter(p -> p.price() <= 1000000).toList(), "[ 100만원 이하 상품 목록 ]");
+                }
+                case "3" -> {
+                    selectCategory(category.id(), category.products().stream().filter(p -> p.price() > 1000000).toList(), "[ 100만원 초과 상품 목록 ]");
+                }
+            }
+        }
+    }
+
+    private void selectCategory(String categoryId, List<Product> list, String des) {
+        boolean run = true;
+        while (run) {
+            System.out.println(des);
             // 선택 할 수 있게 보여준다
             for (int i = 0; i < list.size(); i++) {
                 System.out.println((i + 1) + ". " + list.get(i));

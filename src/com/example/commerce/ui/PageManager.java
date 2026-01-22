@@ -17,7 +17,6 @@ public class PageManager<T extends Page> {
         oagePool.put((Class<T>) MainPage.class, new MainPage());
         oagePool.put((Class<T>) CommercePage.class, new CommercePage());
         oagePool.put((Class<T>) CartPage.class, new CartPage());
-        oagePool.put((Class<T>) OrderPage.class, new OrderPage());
         oagePool.put((Class<T>) AdminPage.class, new AdminPage());
 //        oagePool.forEach(( k, v) -> System.out.println("페이지 풀 등록 완료 : " + v.name));
     }
@@ -45,10 +44,8 @@ public class PageManager<T extends Page> {
     public void notifyCartCountChanged() {
         if (CommerceSystem.getCartCount() > 0) {
             setPageVisible((Class<T>) CartPage.class, true);
-            setPageVisible((Class<T>) OrderPage.class, true);
         } else {
             setPageVisible((Class<T>) CartPage.class, false);
-            setPageVisible((Class<T>) OrderPage.class, false);
         }
     }
 }

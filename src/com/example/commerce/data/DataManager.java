@@ -39,7 +39,6 @@ public class DataManager {
     private static final Map<String, Category> categorys = new TreeMap<>();
     private static final Map<String, Customer> customers = new TreeMap<>();
     private static final Map<String, ArrayList<Product>> carts = new TreeMap<>(); // 유저 email을 키로하는 유저별 장바구니
-    private static final Map<String, ArrayList<Order>> orders = new TreeMap<>(); // 유저 email을 키로하는 유저별 장바구니
     public static final String CATEGORYS = "categorys";
     public static final String CUSTOMERS = "customers";
     public static final String PRODUCTS = "products";
@@ -151,8 +150,13 @@ public class DataManager {
         boolean isOk = false;
         switch (what) {
             case CARTS -> {
-                carts.get(CommerceSystem.getSignedEmail()).clear();
-                isOk = true;
+                if(id == null){
+                    carts.get(CommerceSystem.getSignedEmail()).clear();
+                    isOk = true;
+                }else{
+                    carts.get(CommerceSystem.getSignedEmail()).removeIf(p -> p.id().equals(id) );
+                    isOk = true;
+                }
             }
             case PRODUCTS -> {
                 Product product = CommerceSystem.getProductById(id);
@@ -179,7 +183,6 @@ public class DataManager {
     private static void putCustomer(Customer customer) {
         if (customers.get(customer.id()) == null) {
             carts.put(customer.id(), new ArrayList<Product>());
-            orders.put(customer.id(), new ArrayList<Order>());
         }
         customers.put(customer.id(), customer);
     }
