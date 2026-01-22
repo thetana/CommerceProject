@@ -107,8 +107,16 @@ public class DataManager {
     public static boolean write(String what, HasId data) {
         boolean isOk = false;
         switch (what) {
-            case CATEGORYS -> {
-                isOk = true;
+            case PRODUCTS -> {
+                if (data instanceof Product) {
+                    Product product = (Product) data;
+                    List<Product> list = categorys.get((product).categoryId()).products();
+                    list.removeIf(p -> p.id().equals(product.id()));
+                    list.add(product);
+                    isOk = true;
+                } else {
+                    isOk = false;
+                }
             }
             case CUSTOMERS -> {
                 if (data instanceof Customer) {
@@ -146,6 +154,12 @@ public class DataManager {
                 carts.get(CommerceSystem.getSignedEmail()).clear();
                 isOk = true;
             }
+            case PRODUCTS -> {
+                Product product = CommerceSystem.getProductById(id);
+                carts.get(CommerceSystem.getSignedEmail()).removeIf(p -> p.id().equals(id));
+                categorys.get(product.categoryId()).products().removeIf(p -> p.id().equals(id));
+                isOk = true;
+            }
             default -> {
                 isOk = false;
             }
@@ -159,7 +173,7 @@ public class DataManager {
     }
 
     private static void putCategory(String key, String name, List<Product> products) {
-        categorys.put(key, new Category(name, products));
+        categorys.put(key, new Category(key, name, products));
     }
 
     private static void putCustomer(Customer customer) {

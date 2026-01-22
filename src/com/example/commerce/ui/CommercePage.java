@@ -22,7 +22,7 @@ class CommercePage extends Page {
         boolean run = true;
         while (run) {
             // 선택 할 수 있게 보여준다
-            map.keySet().forEach((k) -> System.out.println(k + ". " + map.get(k).name()));
+            map.keySet().forEach((k) -> System.out.println(k + ". " + map.get(k)));
             System.out.println("0. 뒤로가기");
             String in = sc.next();
             if (in.equals("0") || in.equals("exit")) {

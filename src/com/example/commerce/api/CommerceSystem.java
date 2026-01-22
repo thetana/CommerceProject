@@ -11,14 +11,16 @@ import javax.crypto.spec.PBEKeySpec;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
-import java.util.Base64;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class CommerceSystem {
     // 현재 로그인한 유저 세션쯤의 역할이다
     private static String signedEmail;
     private static PageManager pm = PageManager.getInstance();
+    private static byte[] adminSalt = generateSalt();
+    //    private static String adminPw = hash(new char[]{'a', 'd', 'm', 'i', 'n', '1', '2', '3'}, adminSalt);
+    private static String adminPw = hash(new char[]{'1', '2', '3'}, adminSalt);
+
 
     //region 상품 관련
     public static Map<String, Category> getCategorys() {
@@ -33,8 +35,44 @@ public class CommerceSystem {
         return getProducts(categoryId).stream().filter(p -> p.id().equals(productid)).findFirst().orElseThrow();
     }
 
+    public static Product getProductByName(String name) {
+        Product product = null;
+        Map<String, Category> map = getCategorys();
+        for (Category c : map.values()) {
+            try {
+                product = c.products().stream().filter(p -> p.name().equals(name)).findFirst().orElseThrow();
+            }catch (NoSuchElementException e){
+            }
+        }
+        return product;
+    }
+
+    public static Product getProductById(String id) {
+        Product product = null;
+        Map<String, Category> map = getCategorys();
+        for (Category c : map.values()) {
+            try {
+                product = c.products().stream().filter(p -> p.id().equals(id)).findFirst().orElseThrow();
+            }catch (NoSuchElementException e){
+            }
+        }
+        return product;
+    }
+
     public static int getProductCount(String categoryId, String productid) {
         return getProducts(categoryId).stream().filter(p -> p.id().equals(productid)).mapToInt(Product::count).sum();
+    }
+
+    public static boolean setdProuctStock(String categoryId, String productid, int cnt) {
+        boolean isOk = false;
+        Product old = getProduct(categoryId, productid);
+        Product updated = new Product(old.id(), old.categoryId(), old.name(), old.price(), old.note(), old.count() - cnt);
+
+        // 트렌잭션은 없지만 그래도 할 수 있는 만큼 데이터 안꼬이게 처리 하면서 하자
+        if (DataManager.write(DataManager.PRODUCTS, updated)) {
+            isOk = true;
+        }
+        return isOk;
     }
     //endregion
 
@@ -108,7 +146,9 @@ public class CommerceSystem {
         Customer updated = new Customer(customer.id(), customer.name(), customer.pw(), customer.salt(), rank, total);
 
         // 트렌잭션은 없지만 그래도 할 수 있는 만큼 데이터 안꼬이게 처리 하면서 하자
-        if(DataManager.write(DataManager.CUSTOMERS, updated)){
+        if (DataManager.write(DataManager.CUSTOMERS, updated)) {
+            List<Product> cart = getCart();
+            cart.forEach(p -> setdProuctStock(p.categoryId(), p.id(), p.count()));
             isOk = removeCartAll();
         }
 
@@ -144,7 +184,43 @@ public class CommerceSystem {
     public static String getSignedEmail() {
         return signedEmail;
     }
+    //endregion
 
+    //region 관리자 관련
+    public static boolean isAdmin(char[] pw) {
+        boolean isOk = false;
+        if (adminPw.equals(hash(pw, adminSalt))) {
+            isOk = true;
+        } else {
+            isOk = false;
+        }
+        return isOk;
+    }
+
+    public static boolean addProduct(String categoryId, String name, int price, String note, int count) {
+        boolean isOk = false;
+        Product data = new Product(categoryId, name, price, note, count);
+        isOk = DataManager.write(DataManager.PRODUCTS, data);
+        return isOk;
+    }
+
+    public static boolean modProduct(String categoryId, String productid, String name, int price, String note, int count) {
+        boolean isOk = false;
+        Product data = new Product(productid, categoryId, name, price, note, count);
+        isOk = DataManager.write(DataManager.PRODUCTS, data);
+        return isOk;
+    }
+
+    public static boolean delProduct(String productid) {
+        boolean isOk = false;
+        isOk = DataManager.remove(DataManager.PRODUCTS, productid);
+        return isOk;
+    }
+
+
+    //endregion
+
+    //region 유틸 관련
     private static String hash(char[] password, byte[] salt) {
         try {
             PBEKeySpec spec = new PBEKeySpec(password, salt, 100000, 256);

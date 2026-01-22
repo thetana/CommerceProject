@@ -41,6 +41,8 @@ class CartPage extends Page {
                         Product newStock = CommerceSystem.getProduct(cart.categoryId(), cart.id());
                         System.out.println(cart.name() + " 재고가 " + oldStocks.get(cart.id()).count() + "개 → " + newStock.count() + "개로 업데이트되었습니다.");
                     });
+                    run = false;
+                    break;
                 } else {
                     System.out.println("주문 실패 했습니다.");
                 }
