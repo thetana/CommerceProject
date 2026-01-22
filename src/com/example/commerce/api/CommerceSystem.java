@@ -1,6 +1,7 @@
 package com.example.commerce.api;
 
 import com.example.commerce.data.DataManager;
+import com.example.commerce.data.Rank;
 import com.example.commerce.data.model.Category;
 import com.example.commerce.data.model.Customer;
 import com.example.commerce.data.model.Product;
@@ -41,7 +42,7 @@ public class CommerceSystem {
         for (Category c : map.values()) {
             try {
                 product = c.products().stream().filter(p -> p.name().equals(name)).findFirst().orElseThrow();
-            }catch (NoSuchElementException e){
+            } catch (NoSuchElementException e) {
             }
         }
         return product;
@@ -53,7 +54,7 @@ public class CommerceSystem {
         for (Category c : map.values()) {
             try {
                 product = c.products().stream().filter(p -> p.id().equals(id)).findFirst().orElseThrow();
-            }catch (NoSuchElementException e){
+            } catch (NoSuchElementException e) {
             }
         }
         return product;
@@ -131,17 +132,15 @@ public class CommerceSystem {
         Customer customer = customers.get(signedEmail);
 
         int total = customer.totalAmount() + getCartPrice();
-        String rank = "BRONZE";
-        if (total < 500000) {
-            rank = "BRONZE";
-        } else if (total >= 500000 && total < 1000000) {
-            rank = "SILVER";
-        } else if (total >= 1000000 && total < 2000000) {
-            rank = "GOLD";
-        } else if (total >= 2000000) {
-            rank = "PLATINUM";
+        Rank rank = Rank.BRONZE;
+        if (total >= Rank.PLATINUM.getAmt()) {
+            rank = Rank.PLATINUM;
+        } else if (total >= Rank.GOLD.getAmt()) {
+            rank = Rank.GOLD;
+        } else if (total >= Rank.SILVER.getAmt()) {
+            rank = Rank.SILVER;
         } else {
-            rank = "BRONZE";
+            rank = Rank.BRONZE;
         }
         Customer updated = new Customer(customer.id(), customer.name(), customer.pw(), customer.salt(), rank, total);
 
