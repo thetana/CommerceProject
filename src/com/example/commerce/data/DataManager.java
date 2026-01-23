@@ -33,11 +33,11 @@ import java.util.*;
  * 몰라도 원하는 CRUD를 하도록 하는 것이 목적이다
  * 서버의 DB와 클라이언트의 로컬 저장소의 역할을 모두 수행 한다
  * (서버가 없는데 무슨 말인가 싶을 수도 있는데 현 프로젝트는 서버에서 담당 할 로직과 클라이언트에서 담당할 로직을 가능한 분리 해서 관리 하고 있다)
+ * 사용 방식은 내가 조회를 할지 저장을 할지 삭제를 할지 에 따라 메소드를 호출하고 어떤 데이터에 대한 행위를 할지 정의된 상수를 같이 보내준다
  */
 public class DataManager {
-    private static final Map<String, Map> tables = new HashMap<>();
-    private static final Map<String, Category> categorys = new TreeMap<>();
-    private static final Map<String, Customer> customers = new TreeMap<>();
+    private static final Map<String, Category> categorys = new TreeMap<>(); // 카테고리 여기에 재고 상품들도 들어 있다
+    private static final Map<String, Customer> customers = new TreeMap<>(); // 유저
     private static final Map<String, ArrayList<Product>> carts = new TreeMap<>(); // 유저 email을 키로하는 유저별 장바구니
     public static final String CATEGORYS = "categorys";
     public static final String CUSTOMERS = "customers";
@@ -49,11 +49,6 @@ public class DataManager {
     }
 
     private static void init() {
-        // 테이블 빨리 찾으려고 해쉬맵에 넣어놓자
-        tables.put(CATEGORYS, categorys);
-        tables.put(CUSTOMERS, customers);
-        tables.put(CARTS, carts);
-
         // 데이터 초기화
         List<Product> products;
         products = new ArrayList<>();
@@ -67,9 +62,11 @@ public class DataManager {
         products = new ArrayList<>();
         putCategory("3", "식품", products);
 
+        // 매번 회원가입 하기 싫어서 테스트 유저를 정의 한다 할 때는 작동 안하게 처리 하던가 배포전에 매번 지우던가 테스트 할 때만 사용 해야 한다
         CommerceSystem.addCustomer("123", "123", new char[]{'1', '2', '3'});
     }
 
+    // id 값 없이 사용 할 수 있게 한다 주로 전체 조회
     public static Map read(String what) {
         return read(what, null);
     }
@@ -102,7 +99,6 @@ public class DataManager {
         }
     }
 
-
     public static boolean write(String what, HasId data) {
         boolean isOk = false;
         switch (what) {
@@ -121,7 +117,6 @@ public class DataManager {
                 if (data instanceof Customer) {
                     Customer customer = (Customer) data;
                     putCustomer(customer);
-//                    customers.put(customer.id(), customer);
                     isOk = true;
                 } else {
                     isOk = false;

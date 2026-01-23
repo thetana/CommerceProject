@@ -1,5 +1,9 @@
 package com.example.commerce.data;
 
+/**
+ * 고객 등급과 관련 된 이넘이다
+ * 등급관련 필요한 정보를 다 보유하게 했다
+ */
 public enum Rank {
     BRONZE("BRONZE", 0, 0, "0%"),
     SILVER("SILVER", 0.05, 500000, "5%"),
@@ -7,10 +11,10 @@ public enum Rank {
     PLATINUM("PLATINUM", 0.15, 2000000, "15%");
 
 
-    private String name;
-    private double rate;
-    private int amt;
-    private String des;
+    private String name; // 이게 어떤 등급인지 보여줄 스트링
+    private double rate; // 등급의 할인률
+    private int amt; // 해당등급이 되려면 얼마를 써야 하는지
+    private String des; // 할인률 표기
 
     Rank(String n, double r, int a, String d) {
         this.name = n;

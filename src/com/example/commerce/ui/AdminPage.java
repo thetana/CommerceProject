@@ -214,6 +214,13 @@ class AdminPage extends Page {
         }
     }
 
+    /**
+     * 패스워드를 입력받을 때 사용하는 메소드 이다
+     * 보안을 위해 운영체제 콘솔을 받아와 readPassword()를 실행하고 String 생성 없이 char[]을 바로 받는다
+     * 만약 시스템 콘솔이 없으면 어쩔 수 없이 그냥 Scanner을 사용 하는데 IDE에서 실행하는 상황을 상정하고 분기했다
+     * 배포 환경에서는 거의 운영체제 콘솔에 접근이 가능 할 것이라고 생각했고
+     * 테스트 환경에서는 비밀번호가 보이거나 메모리 상에 남아 있는 것이 크게 문제 되지 않는다고 생각 했다
+     */
     private char[] inputPw() {
         System.out.println("관리자 비밀번호를 입력해주세요: ");
         char[] pw = null;
