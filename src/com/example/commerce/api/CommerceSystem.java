@@ -145,6 +145,7 @@ public class CommerceSystem {
         return isOk;
     }
 
+    // 이게 주문 이다 이름을 좀 잘못 지은 것 같다
     public static boolean setRank() {
         boolean isOk = false;
         Customer customer = getCustomer();
@@ -163,6 +164,7 @@ public class CommerceSystem {
         Customer updated = new Customer(customer.id(), customer.name(), customer.pw(), customer.salt(), rank, total);
 
         // 트렌잭션은 없지만 그래도 할 수 있는 만큼 데이터 안꼬이게 처리 하면서 하자
+        // 저장 되면 데이터순서가 마지막으로 바뀐다 수정대신 재생성을 해서 그런건데 record를 안쓰던 순서를 고정하던 처리를 해야한다
         if (DataManager.write(DataManager.CUSTOMERS, updated)) {
             List<Product> cart = getCart();
             cart.forEach(p -> setProuctStock(p.categoryId(), p.id(), p.count()));
